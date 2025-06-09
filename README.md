@@ -18,7 +18,7 @@ Aplicação Streamlit que utiliza IA (Google Gemini) para sugerir filmes persona
 
 1. Clone o repositório:
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/joaopedroaraujoinacio/seufilmeia
 cd seufilmeia
 ```
 
@@ -35,7 +35,7 @@ pip install streamlit google-generativeai
 streamlit run app.py
 ```
 
-3. Acesse o aplicativo no navegador através do link fornecido (``)
+3. Acesse o aplicativo no navegador através do link fornecido (`https://seufilmeia-rulbnsi7nsskarpa6o8ndg.streamlit.app/`)
 
 ## Funcionalidades
 - Seleção de faixa etária
