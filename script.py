@@ -20,7 +20,7 @@ def sugerir_filme_gemini(prompt):
 st.set_page_config(page_title="Seu Filme.IA", layout="centered")
 
 st.title("Seu Filme.IA")
-st.markdown("Deixe a inteligência artificial te ajudar a encontrar um filme bacana para assistir, com base nas suas preferências!")
+st.markdown("Deixe a inteligência artificial te ajudar a encontrar um filme legal para assistir, com base nas suas preferências!")
 
 # Faixa Etária
 faixa_etaria = st.selectbox(
