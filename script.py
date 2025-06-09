@@ -59,7 +59,7 @@ if st.button("Sugerir Filmes"):
         generos_str = ", ".join(genero)
 
         prompt = (
-            f"Sugira 5 filmes fictícios, mas que pareçam reais, com as seguintes características, apresentando apenas as informações solicitadas em cada item:\n"
+            f"Sugira 5 filmes, com as seguintes características, apresentando as informações de forma concisa e objetiva:\n"
             f"- Faixa Etária: {faixa_etaria}\n"
             f"- Duração: {duracao}\n"
             f"- Nota Mínima Esperada: {nota_preferencia} de 5\n"
@@ -72,17 +72,34 @@ if st.button("Sugerir Filmes"):
             prompt += f"- Atores/Atrizes sugeridos: {atores_atrizes}\n"
         
         prompt += (
-            f"\nPara cada filme, apresente as seguintes informações de forma concisa e objetiva:\n"
-            f"**Título:** [Título do Filme]\n"
-            f"**Sinopse:** [Breve Sinopse - máximo de duas linhas]\n"
-            f"**Duração:** [Duração aproximada]\n"
-            f"**Faixa Etária:** [Faixa Etária]\n"
-            f"**Gêneros:** [Gêneros]\n"
-            f"**Nota de Crítica:** [Nota de 1 a 5, com uma fonte fictícia, ex: '4.2/5 (Críticos IMDb)']\n"
+            f"\nPara cada filme, apresente as seguintes informações:\n"
+            f"Título: [Título do Filme]\n"
+            f"Sinopse: [Breve Sinopse - máximo de duas linhas]\n"
+            f"Duração: [Duração aproximada]\n"
+            f"Faixa Etária: [Faixa Etária]\n"
+            f"Gêneros: [Gêneros]\n"
+            f"Nota de Crítica: [Nota de 1 a 5, ex: '4.2/5 (Críticos IMDb)']\n"
             f"---\n"
         )
 
         with st.spinner("Procurando os filmes perfeitos para você..."):
-            filmes_sugeridos = sugerir_filme_gemini(prompt)
+            filmes_sugeridos_raw = sugerir_filme_gemini(prompt)
+            
             st.subheader("Suas Sugestões de Filmes:")
-            st.write(filmes_sugeridos)
+            
+            filmes_list = filmes_sugeridos_raw.strip().split('---\n')
+            
+            for i, filme_text in enumerate(filmes_list):
+                if filme_text.strip():
+                    st.markdown(f"### 🎬 Filme {i+1}")
+                    
+                    lines = filme_text.strip().split('\n')
+                    for line in lines:
+                        if line.strip():
+                            if "Título:" in line:
+                                st.markdown(f"**{line.replace('Título:', '').strip()}**")
+                            elif "Sinopse:" in line:
+                                st.markdown(f"*{line.replace('Sinopse:', '').strip()}*")
+                            else:
+                                st.write(line.strip())
+                    st.markdown("---") 
