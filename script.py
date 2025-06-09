@@ -17,9 +17,9 @@ def sugerir_filme_gemini(prompt):
     except Exception as e:
         return f"Erro ao gerar sugestão de filme: {str(e)}"
 
-st.set_page_config(page_title="Filme Certo.IA", layout="centered")
+st.set_page_config(page_title="Seu Filme.IA", layout="centered")
 
-st.title("Filme Certo.IA")
+st.title("Seu Filme.IA")
 st.markdown("Deixe a inteligência artificial te ajudar a encontrar um filme bacana para assistir, com base nas suas preferências!")
 
 # Faixa Etária
@@ -70,5 +70,5 @@ if st.button("Sugerir Filme"):
 
         with st.spinner("Procurando o filme perfeito para você..."):
             filme_sugerido = sugerir_filme_gemini(prompt)
-            st.subheader("🎉 Sua Sugestão de Filme:")
+            st.subheader("Sua Sugestão de Filme:")
             st.write(filme_sugerido)
