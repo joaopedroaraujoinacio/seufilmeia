@@ -18,37 +18,39 @@ st.set_page_config(page_title="Seu Filme.IA", layout="centered")
 st.title("Seu Filme.IA")
 st.markdown("Deixe a inteligência artificial te ajudar a encontrar **filmes incríveis** com base nas suas preferências!")
 
-col1, col2 = st.columns(2)
+st.header("Suas Preferências Principais")
+st.markdown("Selecione os critérios básicos para o filme ideal.")
 
-with col1:
-    faixa_etaria = st.selectbox(
-        "Para qual faixa etária é o filme?",
-        ("Livre", "10+", "12+", "14+", "16+", "18+")
-    )
+faixa_etaria = st.selectbox(
+    "Para qual faixa etária é o filme?",
+    ("Livre", "10+", "12+", "14+", "16+", "18+")
+)
 
-    duracao = st.select_slider(
-        "Qual a duração aproximada que você prefere?",
-        options=["Curta (até 90 min)", "Média (90-120 min)", "Longa (acima de 120 min)"]
-    )
+duracao = st.select_slider(
+    "Qual a duração aproximada que você prefere?",
+    options=["Curta (até 90 min)", "Média (90-120 min)", "Longa (acima de 120 min)"]
+)
 
-    nota_preferencia = st.slider(
-        "Qual a nota mínima que o filme deve ter (de 1 a 5)?",
-        min_value=1.0,
-        max_value=5.0,
-        value=3.5,
-        step=0.5
-    )
-
-with col2:
-    ano_lancamento = st.text_input("A partir de qual ano de lançamento? (Opcional)", placeholder="Ex: 2000")
-    
-    atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria? (Opcional)", placeholder="Ex: Tom Hanks, Meryl Streep")
+nota_preferencia = st.slider(
+    "Qual a nota mínima que o filme deve ter (de 1 a 5)?",
+    min_value=1.0,
+    max_value=5.0,
+    value=3.5,
+    step=0.5
+)
 
 genero = st.multiselect(
     "Quais gêneros você gostaria?",
     ["Ação", "Aventura", "Comédia", "Drama", "Ficção Científica", "Terror", "Romance", "Animação", "Documentário", "Fantasia", "Suspense", "Musical"],
     default=["Drama", "Ficção Científica"] 
 )
+
+st.header("Preferências Adicionais (Opcional)")
+st.markdown("Quer refinar ainda mais? Adicione detalhes de ano e atores.")
+
+ano_lancamento = st.text_input("A partir de qual ano de lançamento?", placeholder="Ex: 2000")
+
+atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria?", placeholder="Ex: Tom Hanks, Meryl Streep")
 
 if st.button("Sugerir Filmes"):
     if not genero:
