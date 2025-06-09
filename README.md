@@ -24,7 +24,8 @@ cd seufilmeia
 
 2. Instale as dependências:
 ```bash
-pip install streamlit google-generativeai
+pip install streamlit
+pip install google-generativeai
 ```
 
 ## Como Executar
@@ -47,8 +48,8 @@ streamlit run app.py
 ## Estrutura do Projeto
 ```
 seufilmeia/
-├── app.py
-├── .streamlit/
+├── streamlit_env
+├── README.md
 ├── requirements.txt
-└── README.md
+└── script.py
 ```
