@@ -16,10 +16,10 @@ def sugerir_filme_gemini(prompt):
 st.set_page_config(page_title="Seu Filme.IA", layout="centered")
 
 st.title("Seu Filme.IA")
-st.markdown("Deixe a inteligência artificial te ajudar a encontrar **filmes incríveis** baseados nas suas preferências!")
+st.markdown("Esse aplicativo irá juntamente com a inteligência artificial, te ajudar a encontrar o filme ideal, baseados nas suas preferências!")
 
 st.header("Suas Preferências Principais")
-st.markdown("Selecione os critérios básicos para o filme ideal.")
+st.markdown("Por favor, selecione os critérios básicos para o filme ideal.")
 
 faixa_etaria = st.selectbox(
     "Para qual faixa etária é o filme?",
@@ -27,7 +27,7 @@ faixa_etaria = st.selectbox(
 )
 
 duracao = st.select_slider(
-    "Qual a duração aproximada que você prefere?",
+    "Qual seria a duração aproximada que você prefere?",
     options=["Curta (até 90 min)", "Média (90-120 min)", "Longa (acima de 120 min)"]
 )
 
@@ -40,21 +40,21 @@ nota_preferencia = st.slider(
 )
 
 genero = st.multiselect(
-    "Quais gêneros você gostaria?",
+    "De quais gêneros você gostaria?",
     ["Ação", "Aventura", "Comédia", "Drama", "Ficção Científica", "Terror", "Romance", "Animação", "Documentário", "Fantasia", "Suspense", "Musical"],
     default=["Drama", "Ficção Científica"]
 )
 
 qtd_filmes = st.slider(
-    "Quantos filmes você deseja receber?",
+    "Quantos filmes você deseja receber sugestões?",
     min_value=1,
     max_value=10,
     value=5
 )
 
-st.header("Preferências Adicionais (Opcional)")
-ano_lancamento = st.text_input("A partir de qual ano de lançamento?", placeholder="Ex: 2000")
-atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria?", placeholder="Ex: Tom Hanks, Meryl Streep")
+st.header("Preferências Adicionais Opcionais")
+ano_lancamento = st.text_input("A partir de qual ano de lançamento?", placeholder="Ex: 2001")
+atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria?", placeholder="Ex: Fernanda Torres, Wagner Moura")
 
 if "filmes_anteriores" not in st.session_state:
     st.session_state.filmes_anteriores = []

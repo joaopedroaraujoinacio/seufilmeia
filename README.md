@@ -7,7 +7,7 @@
 - Renan Chacon
 
 ## Descrição
-Aplicação Streamlit que utiliza IA (Google Gemini) para sugerir filmes personalizados baseados nas preferências do usuário, com pré-requisitos como por exemplo, a faixa etária, nota, duração e os possíveis gêneros.
+Aplicação Streamlit que utiliza IA (Google Gemini) para sugerir filmes personalizados baseados nas preferências do usuário, com pré-requisitos como por exemplo, a faixa etária, nota, duração e os possíveis gêneros. A aplicação também conta com a função de identificar filmes, caso a necessidade seja descobrir de qual filme se trata, com as informações fornecidas pelo usuário.
 
 ## Pré-requisitos
 - Python 3.7+
@@ -43,7 +43,9 @@ streamlit run app.py
 - Escolha de duração preferida
 - Definição de nota mínima
 - Seleção múltipla de gêneros
+- Seleção da quantidade de sugestões
 - Geração de sugestões personalizadas via IA
+- Identificação de filme baseado nas informações fornecidas pelo usuário
 
 ## Estrutura do Projeto
 ```
