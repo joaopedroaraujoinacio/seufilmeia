@@ -157,3 +157,24 @@ elif gerar_novos:
                 st.markdown("---")
         st.session_state.filmes_anteriores.extend(novos_titulos)
 
+st.markdown("## 🎯 Identificar Filme")
+st.markdown("Lembra de partes de um filme mas não sabe o nome? Me conte o que você lembra e eu tentarei descobrir!")
+
+descricao_filme = st.text_area("Descreva tudo o que você lembra sobre o filme (cenas, atores, enredo, época...)", height=150)
+
+if st.button("🔍 Identificar Filme"):
+    if descricao_filme.strip():
+        prompt_identificar = (
+            f"Você é um assistente de cinema. Com base na descrição abaixo, diga qual pode ser o filme.\n"
+            f"Descreva o nome mais provável do filme, uma breve sinopse e o motivo da sua escolha.\n"
+            f"Se não souber ao certo, dê a resposta mais plausível com base nos dados disponíveis.\n\n"
+            f"Descrição: {descricao_filme.strip()}"
+        )
+        with st.spinner("Analisando sua descrição..."):
+            resposta_identificar = sugerir_filme_gemini(prompt_identificar)
+            st.markdown("### Resultado:")
+            st.write(resposta_identificar)
+    else:
+        st.warning("Por favor, escreva uma descrição para identificar o filme.")   
+        
+
