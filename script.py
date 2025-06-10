@@ -16,7 +16,7 @@ def sugerir_filme_gemini(prompt):
 st.set_page_config(page_title="Seu Filme.IA", layout="centered")
 
 st.title("Seu Filme.IA")
-st.markdown("Deixe a inteligência artificial te ajudar a encontrar **filmes incríveis** com base nas suas preferências!")
+st.markdown("Deixe a inteligência artificial te ajudar a encontrar **filmes incríveis** baseados nas suas preferências!")
 
 st.header("Suas Preferências Principais")
 st.markdown("Selecione os critérios básicos para o filme ideal.")
@@ -56,7 +56,6 @@ st.header("Preferências Adicionais (Opcional)")
 ano_lancamento = st.text_input("A partir de qual ano de lançamento?", placeholder="Ex: 2000")
 atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria?", placeholder="Ex: Tom Hanks, Meryl Streep")
 
-# Inicializando estados
 if "filmes_anteriores" not in st.session_state:
     st.session_state.filmes_anteriores = []
 if "prompt_base" not in st.session_state:
@@ -104,7 +103,6 @@ with col1:
 with col2:
     gerar_novos = st.button("Gerar Novos Filmes") if st.session_state.sugeriu else None
 
-# Área comum para exibição dos filmes — fora das colunas
 if sugerir:
     if not genero:
         st.warning("Por favor, selecione pelo menos um gênero.")
