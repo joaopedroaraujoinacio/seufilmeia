@@ -45,30 +45,29 @@ genero = st.multiselect(
     default=["Drama", "Ficção Científica"]
 )
 
-st.header("Preferências Adicionais (Opcional)")
-st.markdown("Quer refinar ainda mais? Adicione detalhes de ano e atores.")
-
-ano_lancamento = st.text_input("A partir de qual ano de lançamento?", placeholder="Ex: 2000")
-atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria?", placeholder="Ex: Tom Hanks, Meryl Streep")
-
-# Novo seletor: número de sugestões
-num_filmes = st.slider(
-    "Quantos filmes deseja receber?",
+qtd_filmes = st.slider(
+    "Quantos filmes você deseja receber?",
     min_value=1,
     max_value=10,
     value=5
 )
 
-# Controle de estado para manter o prompt entre cliques
-if "ultimo_prompt" not in st.session_state:
-    st.session_state.ultimo_prompt = ""
-if "ultimo_num" not in st.session_state:
-    st.session_state.ultimo_num = 5
+st.header("Preferências Adicionais (Opcional)")
+ano_lancamento = st.text_input("A partir de qual ano de lançamento?", placeholder="Ex: 2000")
+atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria?", placeholder="Ex: Tom Hanks, Meryl Streep")
 
-def gerar_prompt():
+# Inicializando estados
+if "filmes_anteriores" not in st.session_state:
+    st.session_state.filmes_anteriores = []
+if "prompt_base" not in st.session_state:
+    st.session_state.prompt_base = ""
+if "sugeriu" not in st.session_state:
+    st.session_state.sugeriu = False
+
+def montar_prompt(base=False):
     generos_str = ", ".join(genero)
     prompt = (
-        f"Com base nas preferências abaixo, sugira {num_filmes} filmes que **existem de verdade** e que podem ser verificados em fontes como IMDb ou Rotten Tomatoes.\n"
+        f"Com base nas preferências abaixo, sugira {qtd_filmes} filmes que **existem de verdade** e que podem ser verificados em fontes como IMDb ou Rotten Tomatoes.\n"
         f"Não invente filmes fictícios. Não inclua observações ou comentários adicionais após as sugestões.\n"
         f"Cada sugestão deve conter apenas as informações pedidas. Nada além disso.\n\n"
         f"Critérios:\n"
@@ -77,7 +76,6 @@ def gerar_prompt():
         f"- Nota Mínima Esperada: {nota_preferencia} de 5\n"
         f"- Gêneros: {generos_str}\n"
     )
-
     if ano_lancamento:
         prompt += f"- Ano de Lançamento a partir de: {ano_lancamento}\n"
     if atores_atrizes:
@@ -93,49 +91,63 @@ def gerar_prompt():
         f"Nota de Crítica: [Nota de 1 a 5, ex: '4.2/5 (Críticos IMDb)']\n"
         f"---\n"
     )
+
+    if not base and st.session_state.filmes_anteriores:
+        lista_titulos = ', '.join(st.session_state.filmes_anteriores)
+        prompt += f"\nEvite repetir qualquer filme das sugestões anteriores: {lista_titulos}.\n"
+
     return prompt
 
-# Botões lado a lado
 col1, col2 = st.columns([1, 1])
-
 with col1:
-    gerar = st.button("🎥 Sugerir Filmes")
+    if st.button("Sugerir Filmes"):
+        if not genero:
+            st.warning("Por favor, selecione pelo menos um gênero.")
+        else:
+            prompt = montar_prompt(base=True)
+            with st.spinner("Procurando os filmes perfeitos para você..."):
+                resposta = sugerir_filme_gemini(prompt)
+                st.session_state.sugeriu = True
+                st.session_state.prompt_base = prompt
+                filmes_raw = resposta.strip().split('---\n')
+                st.session_state.filmes_anteriores = []
+
+                st.subheader("Suas Sugestões de Filmes:")
+                for i, filme in enumerate(filmes_raw[:qtd_filmes]):
+                    if filme.strip():
+                        st.markdown(f"### 🎬 Filme {i+1}")
+                        for line in filme.strip().split('\n'):
+                            if "Título:" in line:
+                                titulo = line.replace("Título:", "").strip()
+                                st.session_state.filmes_anteriores.append(titulo)
+                                st.markdown(f"**{titulo}**")
+                            elif "Sinopse:" in line:
+                                st.markdown(f"*{line.replace('Sinopse:', '').strip()}*")
+                            else:
+                                st.write(line.strip())
+                        st.markdown("---")
 
 with col2:
-    gerar_novos = st.button("🔄 Gerar Novos Filmes")
+    if st.session_state.sugeriu:
+        if st.button("Gerar Novos Filmes"):
+            prompt = montar_prompt(base=False)
+            with st.spinner("Gerando nova lista..."):
+                resposta = sugerir_filme_gemini(prompt)
+                filmes_raw = resposta.strip().split('---\n')
+                novos_titulos = []
 
-# Lógica de sugestão
-if gerar or gerar_novos:
-    if not genero:
-        st.warning("Por favor, selecione pelo menos um gênero para a sugestão.")
-    else:
-        if gerar:
-            prompt = gerar_prompt()
-            st.session_state.ultimo_prompt = prompt
-            st.session_state.ultimo_num = num_filmes
-        else:  # botão "Gerar Novos Filmes"
-            prompt = st.session_state.ultimo_prompt
-            num_filmes = st.session_state.ultimo_num  # manter valor anterior
-
-        with st.spinner("Procurando os filmes perfeitos para você..."):
-            filmes_sugeridos_raw = sugerir_filme_gemini(prompt)
-
-        st.subheader("Suas Sugestões de Filmes:")
-
-        filmes_list = filmes_sugeridos_raw.strip().split('---\n')
-        for i, filme_text in enumerate(filmes_list[:num_filmes]):
-            if filme_text.strip():
-                st.markdown(f"### 🎬 Filme {i+1}")
-                lines = filme_text.strip().split('\n')
-                for line in lines:
-                    if line.strip():
-                        if "Título:" in line:
-                            clean_title = line.replace('Título:', '').replace('**', '').strip()
-                            st.markdown(f"**{clean_title}**")
-                        elif "Sinopse:" in line:
-                            clean_synopsis = line.replace('Sinopse:', '').replace('**', '').strip()
-                            st.markdown(f"*{clean_synopsis}*")
-                        else:
-                            clean_line = line.replace('**', '').strip()
-                            st.write(clean_line)
-                st.markdown("---")
+                st.subheader("Novas Sugestões de Filmes:")
+                for i, filme in enumerate(filmes_raw[:qtd_filmes]):
+                    if filme.strip():
+                        st.markdown(f"### 🎬 Filme {i+1}")
+                        for line in filme.strip().split('\n'):
+                            if "Título:" in line:
+                                titulo = line.replace("Título:", "").strip()
+                                novos_titulos.append(titulo)
+                                st.markdown(f"**{titulo}**")
+                            elif "Sinopse:" in line:
+                                st.markdown(f"*{line.replace('Sinopse:', '').strip()}*")
+                            else:
+                                st.write(line.strip())
+                        st.markdown("---")
+                st.session_state.filmes_anteriores.extend(novos_titulos)
