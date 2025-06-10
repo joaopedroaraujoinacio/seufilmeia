@@ -36,7 +36,7 @@ pip install google-generativeai
 streamlit run app.py
 ```
 
-3. Acesse o aplicativo no navegador através do link fornecido (`https://seufilmeia-rulbnsi7nsskarpa6o8ndg.streamlit.app/`)
+3. Acesse o aplicativo no navegador através do link fornecido (`https://seufilmeia-pmyfvnqyhn5qnvyenn36k4.streamlit.app/`)
 
 ## Funcionalidades
 - Seleção de faixa etária
