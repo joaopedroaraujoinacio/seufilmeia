@@ -1,10 +1,12 @@
 import streamlit as st
 import google.generativeai as genai
 
+# Configuração da API Key (substitua pela sua chave secreta)
 api_key = st.secrets['API_KEY']
 genai.configure(api_key = api_key) 
 
-model = genai.GenerativeModel("gemini-2.0-flash")
+# Usando um modelo que é bom para gerar conteúdo criativo
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def sugerir_filme_gemini(prompt):
     try:
@@ -52,57 +54,111 @@ ano_lancamento = st.text_input("A partir de qual ano de lançamento?", placehold
 
 atores_atrizes = st.text_input("Atores ou Atrizes que você gostaria?", placeholder="Ex: Tom Hanks, Meryl Streep")
 
-if st.button("Sugerir Filmes"):
+# Nova opção: Quantidade de filmes
+num_filmes_sugerir = st.slider(
+    "Quantos filmes você gostaria de sugerir?",
+    min_value=1,
+    max_value=20,
+    value=5, # Valor padrão de 5 filmes
+    step=1
+)
+
+# Inicializa o estado da sessão para armazenar as sugestões
+if 'filmes_sugeridos' not in st.session_state:
+    st.session_state.filmes_sugeridos = None
+
+# Função para gerar e exibir filmes
+def gerar_e_exibir_filmes():
     if not genero:
         st.warning("Por favor, selecione pelo menos um gênero para a sugestão.")
-    else:
-        generos_str = ", ".join(genero)
+        st.session_state.filmes_sugeridos = None # Limpa sugestões se não houver gênero
+        return
+    
+    generos_str = ", ".join(genero)
 
-        prompt = (
-            f"Sugira 5 filmes fictícios, mas que pareçam reais, com as seguintes características, apresentando as informações de forma concisa e objetiva:\n"
-            f"- Faixa Etária: {faixa_etaria}\n"
-            f"- Duração: {duracao}\n"
-            f"- Nota Mínima Esperada: {nota_preferencia} de 5\n"
-            f"- Gêneros: {generos_str}\n"
-        )
-        
-        if ano_lancamento:
-            prompt += f"- Ano de Lançamento a partir de: {ano_lancamento}\n"
-        if atores_atrizes:
-            prompt += f"- Atores/Atrizes sugeridos: {atores_atrizes}\n"
-        
-        prompt += (
-            f"\nPara cada filme, apresente as seguintes informações:\n"
-            f"Título: [Título do Filme]\n"
-            f"Sinopse: [Breve Sinopse - máximo de duas linhas]\n"
-            f"Duração: [Duração aproximada]\n"
-            f"Faixa Etária: [Faixa Etária]\n"
-            f"Gêneros: [Gêneros]\n"
-            f"Nota de Crítica: [Nota de 1 a 5, com uma fonte fictícia, ex: '4.2/5 (Críticos IMDb)']\n"
-            f"---\n"
-        )
+    prompt = (
+        f"Sugira {num_filmes_sugerir} filmes com as seguintes características, apresentando as informações de forma concisa e objetiva:\n"
+        f"- Faixa Etária: {faixa_etaria}\n"
+        f"- Duração: {duracao}\n"
+        f"- Nota Mínima Esperada: {nota_preferencia} de 5\n"
+        f"- Gêneros: {generos_str}\n"
+    )
+    
+    if ano_lancamento:
+        prompt += f"- Ano de Lançamento a partir de: {ano_lancamento}\n"
+    if atores_atrizes:
+        prompt += f"- Atores/Atrizes sugeridos: {atores_atrizes}\n"
+    
+    prompt += (
+        f"\nPara cada filme, apresente as seguintes informações:\n"
+        f"Título: [Título do Filme]\n"
+        f"Sinopse: [Breve Sinopse - máximo de duas linhas]\n"
+        f"Duração: [Duração aproximada]\n"
+        f"Faixa Etária: [Faixa Etária]\n"
+        f"Gêneros: [Gêneros]\n"
+        f"Nota de Crítica: [Nota de 1 a 5, ex: '4.2/5 (Críticos IMDb)']\n"
+        f"---\n"
+    )
 
-        with st.spinner("Procurando os filmes perfeitos para você..."):
-            filmes_sugeridos_raw = sugerir_filme_gemini(prompt)
-            
-            st.subheader("Suas Sugestões de Filmes:")
-            
-            filmes_list = filmes_sugeridos_raw.strip().split('---\n')
-            
-            for i, filme_text in enumerate(filmes_list):
-                if filme_text.strip():
-                    st.markdown(f"### 🎬 Filme {i+1}")
-                    
-                    lines = filme_text.strip().split('\n')
-                    for line in lines:
-                        if line.strip():
-                            if "Título:" in line:
-                                clean_title = line.replace('Título:', '').replace('**', '').strip()
-                                st.markdown(f"**{clean_title}**")
-                            elif "Sinopse:" in line:
-                                clean_synopsis = line.replace('Sinopse:', '').replace('**', '').strip()
-                                st.markdown(f"*{clean_synopsis}*")
-                            else:
-                                clean_line = line.replace('**', '').strip() 
-                                st.write(clean_line)
-                    st.markdown("---")
+    with st.spinner(f"Procurando {num_filmes_sugerir} filmes perfeitos para você..."):
+        filmes_sugeridos_raw = sugerir_filme_gemini(prompt)
+        st.session_state.filmes_sugeridos = filmes_sugeridos_raw # Armazena na sessão
+        
+        # Processa e exibe os filmes
+        filmes_list = filmes_sugeridos_raw.strip().split('---\n')
+        
+        st.subheader("Suas Sugestões de Filmes:")
+
+        for i, filme_text in enumerate(filmes_list):
+            if filme_text.strip():
+                st.markdown(f"### 🎬 Filme {i+1}")
+                
+                lines = filme_text.strip().split('\n')
+                for line in lines:
+                    if line.strip():
+                        if "Título:" in line:
+                            clean_title = line.replace('Título:', '').replace('**', '').strip()
+                            st.markdown(f"**{clean_title}**")
+                        elif "Sinopse:" in line:
+                            clean_synopsis = line.replace('Sinopse:', '').replace('**', '').strip()
+                            st.markdown(f"*{clean_synopsis}*")
+                        else:
+                            clean_line = line.replace('**', '').strip() 
+                            st.write(clean_line)
+                st.markdown("---")
+
+# Botão principal para sugerir filmes
+if st.button("Sugerir Filmes", key="sugerir_primeira_vez"):
+    gerar_e_exibir_filmes()
+
+# Botão "Sugerir Outros Filmes" só aparece se já houver sugestões
+if st.session_state.filmes_sugeridos:
+    if st.button("Sugerir Outros Filmes", key="sugerir_novamente"):
+        # Limpa as sugestões anteriores para "trocar" na tela
+        st.session_state.filmes_sugeridos = None 
+        st.experimental_rerun() # Força o Streamlit a redesenhar a página
+    
+    # Se houver sugestões armazenadas, exibe-as (para manter na tela após o primeiro clique)
+    if st.session_state.filmes_sugeridos:
+        filmes_sugeridos_raw = st.session_state.filmes_sugeridos
+        filmes_list = filmes_sugeridos_raw.strip().split('---\n')
+        
+        st.subheader("Suas Sugestões de Filmes:")
+        for i, filme_text in enumerate(filmes_list):
+            if filme_text.strip():
+                st.markdown(f"### 🎬 Filme {i+1}")
+                lines = filme_text.strip().split('\n')
+                for line in lines:
+                    if line.strip():
+                        if "Título:" in line:
+                            clean_title = line.replace('Título:', '').replace('**', '').strip()
+                            st.markdown(f"**{clean_title}**")
+                        elif "Sinopse:" in line:
+                            clean_synopsis = line.replace('Sinopse:', '').replace('**', '').strip()
+                            st.markdown(f"*{clean_synopsis}*")
+                        else:
+                            clean_line = line.replace('**', '').strip() 
+                            st.write(clean_line)
+                st.markdown("---")
+
+st.info("Sua Filme.IA é alimentada por Google Gemini!")
