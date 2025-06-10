@@ -16,7 +16,7 @@ def sugerir_filme_gemini(prompt):
 st.set_page_config(page_title="Seu Filme.IA", layout="centered")
 
 st.title("Seu Filme.IA")
-st.markdown("Esse aplicativo irá juntamente com a inteligência artificial, te ajudar a encontrar o filme ideal, baseados nas suas preferências!")
+st.markdown("Esse aplicativo, junto da inteligência artificial, irá te ajudar a encontrar o filme ideal, baseado nas suas preferências!")
 
 st.header("Suas Preferências Principais")
 st.markdown("Por favor, selecione os critérios básicos para o filme ideal.")
@@ -62,6 +62,8 @@ if "prompt_base" not in st.session_state:
     st.session_state.prompt_base = ""
 if "sugeriu" not in st.session_state:
     st.session_state.sugeriu = False
+if "filmes_gerados" not in st.session_state:
+    st.session_state.filmes_gerados = []
 
 def montar_prompt(base=False):
     generos_str = ", ".join(genero)
@@ -101,7 +103,7 @@ col1, col2 = st.columns([1, 1])
 with col1:
     sugerir = st.button("Sugerir Filmes")
 with col2:
-    gerar_novos = st.button("Gerar Novos Filmes") if st.session_state.sugeriu else None
+    gerar_novos = st.button("Gerar Novos Filmes")
 
 if sugerir:
     if not genero:
@@ -114,53 +116,47 @@ if sugerir:
             st.session_state.prompt_base = prompt
             filmes_raw = resposta.strip().split('---\n')
             st.session_state.filmes_anteriores = []
+            st.session_state.filmes_gerados = filmes_raw
 
-            st.markdown("---")
-            st.subheader("🎥 Suas Sugestões de Filmes")
-            for i, filme in enumerate(filmes_raw[:qtd_filmes]):
-                if filme.strip():
-                    st.markdown(f"### 🎬 Filme {i+1}")
-                    for line in filme.strip().split('\n'):
-                        if "Título:" in line:
-                            titulo = line.replace("Título:", "").strip()
-                            st.session_state.filmes_anteriores.append(titulo)
-                            st.markdown(f"**{titulo}**")
-                        elif "Sinopse:" in line:
-                            st.markdown(f"*{line.replace('Sinopse:', '').strip()}*")
-                        else:
-                            st.write(line.strip())
-                    st.markdown("---")
-
-elif gerar_novos:
+if gerar_novos and st.session_state.sugeriu:
     prompt = montar_prompt(base=False)
     with st.spinner("Gerando nova lista..."):
         resposta = sugerir_filme_gemini(prompt)
         filmes_raw = resposta.strip().split('---\n')
         novos_titulos = []
-
-        st.markdown("---")
-        st.subheader("🎬 Novas Sugestões de Filmes")
-        for i, filme in enumerate(filmes_raw[:qtd_filmes]):
+        for filme in filmes_raw[:qtd_filmes]:
             if filme.strip():
-                st.markdown(f"### 🎬 Filme {i+1}")
                 for line in filme.strip().split('\n'):
                     if "Título:" in line:
                         titulo = line.replace("Título:", "").strip()
                         novos_titulos.append(titulo)
-                        st.markdown(f"**{titulo}**")
-                    elif "Sinopse:" in line:
-                        st.markdown(f"*{line.replace('Sinopse:', '').strip()}*")
-                    else:
-                        st.write(line.strip())
-                st.markdown("---")
         st.session_state.filmes_anteriores.extend(novos_titulos)
+        st.session_state.filmes_gerados = filmes_raw
+
+if st.session_state.sugeriu and st.session_state.filmes_gerados:
+    st.markdown("---")
+    st.subheader("🎥 Suas Sugestões de Filmes")
+    for i, filme in enumerate(st.session_state.filmes_gerados[:qtd_filmes]):
+        if filme.strip():
+            st.markdown(f"### 🎬 Filme {i+1}")
+            for line in filme.strip().split('\n'):
+                if "Título:" in line:
+                    titulo = line.replace("Título:", "").strip()
+                    if titulo not in st.session_state.filmes_anteriores:
+                        st.session_state.filmes_anteriores.append(titulo)
+                    st.markdown(f"**{titulo}**")
+                elif "Sinopse:" in line:
+                    st.markdown(f"*{line.replace('Sinopse:', '').strip()}*")
+                else:
+                    st.write(line.strip())
+            st.markdown("---")
 
 st.markdown("## 🎯 Identificar Filme")
 st.markdown("Lembra de partes de um filme mas não sabe o nome? Me conte o que você lembra e eu tentarei descobrir!")
 
 descricao_filme = st.text_area("Descreva tudo o que você lembra sobre o filme (cenas, atores, enredo, época...)", height=150)
 
-if st.button("🔍 Identificar Filme"):
+if st.button("🔍 Identificar Filme", key="identificar"):
     if descricao_filme.strip():
         prompt_identificar = (
             f"Você é um assistente de cinema. Com base na descrição abaixo, diga qual pode ser o filme.\n"
@@ -173,6 +169,5 @@ if st.button("🔍 Identificar Filme"):
             st.markdown("### Resultado:")
             st.write(resposta_identificar)
     else:
-        st.warning("Por favor, escreva uma descrição para identificar o filme.")   
-        
+        st.warning("Por favor, escreva uma descrição para identificar o filme.")
 
