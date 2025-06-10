@@ -16,7 +16,7 @@ def sugerir_filme_gemini(prompt):
 st.set_page_config(page_title="Seu Filme.IA", layout="centered")
 
 st.title("Seu Filme.IA")
-st.markdown("Deixe a inteligência artificial te ajudar a encontrar **filmes incríveis** com base nas suas preferências!")
+st.markdown("Deixe a inteligência artificial te ajudar a encontrar **filmes incríveis** baseados nas suas preferências!")
 
 st.header("Suas Preferências Principais")
 st.markdown("Selecione os critérios básicos para o filme ideal.")
@@ -59,7 +59,7 @@ if st.button("Sugerir Filmes"):
         generos_str = ", ".join(genero)
 
         prompt = (
-            f"Sugira 5 filmes fictícios, mas que pareçam reais, com as seguintes características, apresentando as informações de forma concisa e objetiva:\n"
+            f"Sugira 5 filmes com as seguintes características, apresentando as informações de forma concisa e objetiva:\n"
             f"- Faixa Etária: {faixa_etaria}\n"
             f"- Duração: {duracao}\n"
             f"- Nota Mínima Esperada: {nota_preferencia} de 5\n"
@@ -78,7 +78,7 @@ if st.button("Sugerir Filmes"):
             f"Duração: [Duração aproximada]\n"
             f"Faixa Etária: [Faixa Etária]\n"
             f"Gêneros: [Gêneros]\n"
-            f"Nota de Crítica: [Nota de 1 a 5, com uma fonte fictícia, ex: '4.2/5 (Críticos IMDb)']\n"
+            f"Nota de Crítica: [Nota de 1 a 5, ex: '4.2/5 (Críticos IMDb)']\n"
             f"---\n"
         )
 
