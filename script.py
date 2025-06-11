@@ -135,10 +135,10 @@ if gerar_novos and st.session_state.sugeriu:
 
 if st.session_state.sugeriu and st.session_state.filmes_gerados:
     st.markdown("---")
-    st.subheader("🎥 Suas Sugestões de Filmes")
+    st.subheader("Suas Sugestões de Filmes")
     for i, filme in enumerate(st.session_state.filmes_gerados[:qtd_filmes]):
         if filme.strip():
-            st.markdown(f"### 🎬 Filme {i+1}")
+            st.markdown(f"### Filme {i+1}")
             for line in filme.strip().split('\n'):
                 if "Título:" in line:
                     titulo = line.replace("Título:", "").strip()
@@ -151,12 +151,12 @@ if st.session_state.sugeriu and st.session_state.filmes_gerados:
                     st.write(line.strip())
             st.markdown("---")
 
-st.markdown("## 🎯 Identificar Filme")
+st.markdown("## Identificar Filme")
 st.markdown("Lembra de partes de um filme mas não sabe o nome? Me conte o que você lembra e eu tentarei descobrir!")
 
 descricao_filme = st.text_area("Descreva tudo o que você lembra sobre o filme (cenas, atores, enredo, época...)", height=150)
 
-if st.button("🔍 Identificar Filme", key="identificar"):
+if st.button("Identificar Filme", key="identificar"):
     if descricao_filme.strip():
         prompt_identificar = (
             f"Você é um assistente de cinema. Com base na descrição abaixo, diga qual pode ser o filme.\n"
